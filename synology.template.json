@@ -1,0 +1,75 @@
+{
+  "order": 0,
+  "template": "synology-*",
+  "settings": {},
+  "mappings": {
+    "doc": {
+          "dynamic": "false",
+          "_all": {
+            "enabled": false
+          },
+        "properties": {
+          "@timestamp": {
+                  "type": "date"
+          },
+          "@version": {
+                  "type": "integer"
+          },
+      "dig_type": {
+        "type": "keyword"
+      },
+          "ipadress": {
+                  "type": "ip"
+          },
+      "syslog_hostname": {
+        "type": "keyword"
+      },
+          "syslog_message": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+        "ignore_above": 256,
+        "type": "keyword"
+        }
+      }
+          },
+          "syslog_pid": {
+                  "type": "long"
+          },
+      "user_name": {
+                  "type": "keyword"
+          },
+          "severity": {
+                  "type": "integer"
+          },
+          "tags": {
+                  "type": "keyword"
+          },
+    "type": {
+      "type": "keyword"
+    },
+          "hostnamn": {
+                  "type": "keyword"
+          },
+          "Login_status": {
+                  "type": "keyword"
+          },
+          "synology_service": {
+                  "type": "keyword"
+          },
+          "syslog_program": {
+                  "type": "keyword"
+          }
+        }
+        }
+  },
+  "_default_": {
+          "_all": {
+            "enabled": false
+          }
+    }
+  },
+  "aliases": {
+    "synology": {}
+  }
+}
