@@ -1,0 +1,43 @@
+input {
+  tcp {
+    port => 5140
+    type => syslog
+    tags => "synology"
+  }
+  udp {
+    port => 5140
+    type => syslog
+    tags => "synology"
+  }
+}
+
+filter {
+  if [tags] == "synology" and [message] =~ "sequenceId" {
+    grok {
+      match => { "message" => '<%{POSINT:syslog_pri}>%{INT:version} %{TIMESTAMP_ISO8601:timestamp} %{HOSTNAME:hostname} %{DATA:syslog_program} - -
+(?:\[.+sequenceId="%{POSINT:message_id}"])? %{GREEDYDATA:syslog_message}' }
+    }
+    syslog_pri { }
+  } else if [tags] == "synology" {
+    grok {
+      match => [ "message", "<%{POSINT:syslog_pri}>%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{P
+OSINT:syslog_pid}\])?: User \[%{USERNAME:user_name}\] from \[(?:%{HOSTNAME:hostnamn}|%{IP:ipadress})\] %{DATA:Login_status} via \[%{DATA:synology_s
+ervice}\]%{GREEDYDATA:syslog_message}",
+                 "message", "<%{POSINT:syslog_pri}>%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program} %{USERN
+AME:user_name}\:\t%{GREEDYDATA:synology_mailserver_message}",
+                 "message", "<%{POSINT:syslog_pri}>%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{P
+OSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}"
+               ]
+    }
+  }
+}
+
+
+output {
+  elasticsearch { hosts => ["192.168.1.15:9200"]
+    index => "synology-%{+YYYY.MM.dd}"
+  }
+  if [tags] == "synology" and "_grokparsefailure" in [tags] {
+    file { path => "/var/log/logstash/failed_syslog_events-%{+YYYY-MM-dd}" }
+  }
+}
